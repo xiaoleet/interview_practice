@@ -1,0 +1,13 @@
+1.如何创建线程
+ThreadExtendsThread-（1）从Thread类继承，重写Thread的run方法。创建thread的对象，调用thread的start()方法
+ThreadImplementsRunnable-（2）从Runnable接口实现，实现Runnable接口的run方法，创建runnbale接口的实例，创建线程实例，将接口的实例传入线程实例，调用线程的start()方法
+ThreadImplementsCallable-(3)从Callable接口实现，实现Callable接口的call方法，创建ExcutorService线程池，线程池的大小可以为N，
+然后将Callable任务提交给线程池，并返回一个Feature对象，通过Feature对象获取线程状态，最后再程序执行的最后，关闭线程持 excutorService.shutdown()
+
+什么情况下会调用shutdown？服务在重启时，重新初始化时，关闭线程池；不需要线程池时关闭线程池；主线程执行的最后，关闭线程池
+为什么要关闭线程池？释放资源，比如内存cpu，通过shutdown来线程管理，关闭不必要线程，避免其参与资源竞争；避免任务丢失，Spring会去在应用程序关闭时关闭线程池，如果像写的ThreadImplementsCallable类里面要手动关闭
+避免任务丢失，因为调shutdown之前会完成所有的任务，再关闭；编码规范要求关闭
+
+为什么继承自thread类的，不需要手动关闭？因为跑完run方法，自然就关闭了
+或者如果实现要关闭，可以定一个全局变量，再判断任务进度或者状态后，调整全局变量，再run方法中可以判断这个全局变量的状态，选择是否要执行线程。但是一般不这么写，会打断任务和资源管理。
+2.
