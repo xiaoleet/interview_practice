@@ -1,6 +1,6 @@
 //leetcode 1114题，保证顺序打印first second thrid
 class Foo {
-    private volatile  int flag = 1;
+    private   int flag = 1;
     private static Object status = new Object();
     public Foo() {
     }
