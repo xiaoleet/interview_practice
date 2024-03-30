@@ -1,13 +1,28 @@
 1.如何创建线程
-ThreadExtendsThread-（1）从Thread类继承，重写Thread的run方法。创建thread的对象，调用thread的start()方法
-ThreadImplementsRunnable-（2）从Runnable接口实现，实现Runnable接口的run方法，创建runnbale接口的实例，创建线程实例，将接口的实例传入线程实例，调用线程的start()方法
-ThreadImplementsCallable-(3)从Callable接口实现，实现Callable接口的call方法，创建ExcutorService线程池，线程池的大小可以为N，
-然后将Callable任务提交给线程池，并返回一个Feature对象，通过Feature对象获取线程状态，最后再程序执行的最后，关闭线程持 excutorService.shutdown()
+    ThreadExtendsThread-（1）从Thread类继承，重写Thread的run方法。创建thread的对象，调用thread的start()方法
+    ThreadImplementsRunnable-（2）从Runnable接口实现，实现Runnable接口的run方法，创建runnbale接口的实例，创建线程实例，将接口的实例传入线程实例，调用线程的start()方法
+    ThreadImplementsCallable-(3)从Callable接口实现，实现Callable接口的call方法，创建ExcutorService线程池，线程池的大小可以为N，
+    然后将Callable任务提交给线程池，并返回一个Feature对象，通过Feature对象获取线程状态，最后再程序执行的最后，关闭线程持 excutorService.shutdown()
 
-什么情况下会调用shutdown？服务在重启时，重新初始化时，关闭线程池；不需要线程池时关闭线程池；主线程执行的最后，关闭线程池
-为什么要关闭线程池？释放资源，比如内存cpu，通过shutdown来线程管理，关闭不必要线程，避免其参与资源竞争；避免任务丢失，Spring会去在应用程序关闭时关闭线程池，如果像写的ThreadImplementsCallable类里面要手动关闭
-避免任务丢失，因为调shutdown之前会完成所有的任务，再关闭；编码规范要求关闭
+    什么情况下会调用shutdown？服务在重启时，重新初始化时，关闭线程池；不需要线程池时关闭线程池；主线程执行的最后，关闭线程池
+    为什么要关闭线程池？释放资源，比如内存cpu，通过shutdown来线程管理，关闭不必要线程，避免其参与资源竞争；避免任务丢失，Spring会去在应用程序关闭时关闭线程池，如果像写的ThreadImplementsCallable类里面要手动关闭
+    避免任务丢失，因为调shutdown之前会完成所有的任务，再关闭；编码规范要求关闭
 
-为什么继承自thread类的，不需要手动关闭？因为跑完run方法，自然就关闭了
-或者如果实现要关闭，可以定一个全局变量，再判断任务进度或者状态后，调整全局变量，再run方法中可以判断这个全局变量的状态，选择是否要执行线程。但是一般不这么写，会打断任务和资源管理。
-2.
+    为什么继承自thread类的，不需要手动关闭？因为跑完run方法，自然就关闭了
+    或者如果实现要关闭，可以定一个全局变量，再判断任务进度或者状态后，调整全局变量，再run方法中可以判断这个全局变量的状态，选择是否要执行线程。但是一般不这么写，会打断任务和资源管理。
+2.线程的6种状态
+     * 1.就绪（ready）。创建好的线程，调用start()之前，处于这个状态
+     * 2.运行（running）。调用start()后，子线程就已进入这个状态
+     * 3.阻塞（blocked）。对象锁被另外一个线程持有，等待另外一个线程释放锁，当前线程才能拿到锁，此时当前线程处于阻塞状态
+     * 4.等待（waiting）。一个线程需要另外一个线程唤醒（调用notify，或者notifyAll唤醒时），则这个线程处于等待状态。
+     * 5.TIMED_WAITING (指定休眠时间)：跟waiting状态多了一个时间，这个状态要等到超时，或者等待被唤醒，才会跳出状态到运行态
+     * 6.结束（terminal）。线程shutdown了，执行完成了
+
+3.线程什么时候进入waiting状态？
+    一个线程需要另外一个线程唤醒，或者当前线程需要满足某些条件才能被唤醒，则会进入等待状态
+    进入waiting，调用waiting方法
+    退出waiting，调用notify方法
+
+4.如何实现不同线程之间访问同一个资源
+    ThreadStatus-简单方法：简单协作场景，看的懂，入门级别的。但是会出现如果无法唤醒，就导致线程死锁。
+        比如，线程1唤醒了主线程失败了，那么如果线程1也在等待线程2释放锁，线程2也会等待线程1释放锁，就会死锁
