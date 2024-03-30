@@ -26,3 +26,12 @@
 4.如何实现不同线程之间访问同一个资源
     ThreadStatus-简单方法：简单协作场景，看的懂，入门级别的。但是会出现如果无法唤醒，就导致线程死锁。
         比如，线程1唤醒了主线程失败了，那么如果线程1也在等待线程2释放锁，线程2也会等待线程1释放锁，就会死锁
+
+5.leetcode 1115:交替打印foobar
+    FooBar：交替打印，main中是循环，用最基本的隐式runnable接口来实现，通过flagFoo和notify还有wait来交替实现
+    FooBar2：交替打印，main中是最简单的隐式runnable接口来实现，循环和切换逻辑都在foo和bar中,通过flagFoo和notify还有wait来交替实现
+    FooBar3：利用BlockingQueue实现，当队列满时，put操作会阻塞线程，当队列空时，take操作也会阻塞线程来实现。
+    FooBar4：ExecutorService 线程池管理。后面的foo和bar 的wait和notify实现都是 基本的实现
+    FooBar5：forkjoinpool线程池管理。后面的foo和bar 的wait和notify实现都是 基本的实现
+    FooBar6：主动出让cpu的yield方式。要改foo和bar，比较有意思
+6.leetcode 1116:打印0和奇偶数
